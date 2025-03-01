@@ -1,0 +1,17 @@
+int x;
+
+int main() {
+    outer();
+}
+
+int outer(int p) {
+    middle();
+}
+
+int middle(int q) {
+    inner();
+}
+
+int inner(int r) {
+}
+

@@ -1,0 +1,13 @@
+int a, b;
+
+int firstFunction() {
+    secondFunction();
+}
+
+int secondFunction() {
+    thirdFunction();
+}
+
+int thirdFunction() {
+}
+

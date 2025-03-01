@@ -1,0 +1,29 @@
+int counter;
+
+int main() {
+    chainA();
+    chainB();
+}
+
+int chainA() {
+    aStepOne();
+    aStepTwo();
+}
+
+int chainB() {
+    bStepOne();
+    bStepTwo();
+}
+
+int aStepOne() {
+}
+
+int aStepTwo() {
+}
+
+int bStepOne() {
+}
+
+int bStepTwo() {
+}
+

@@ -1,0 +1,13 @@
+int main() {
+    int x, y;
+    x = 10;
+    y = 20;
+
+    if (x > y) {
+        x = 1;
+    } else {
+        x = 0;
+    }
+
+    return x;
+}

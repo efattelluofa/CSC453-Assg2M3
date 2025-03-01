@@ -1,0 +1,82 @@
+
+
+int teehee(int lolzor) {
+
+	int getWrekt;
+	int getDestroyed;
+	int getTrashed;
+	int getZonked;
+
+
+	int getIT;
+
+
+	teehee();
+	teehee();
+
+	teehee();
+
+
+	teehee();
+
+
+}
+
+
+
+int getWrekt, getTrashed, getZonked, getDestroyed;
+int getIT;
+
+
+
+int teehee2(int haha) {
+	int getDestroyed;
+	int getWrekt;
+	teehee2();
+
+	int getZonked;
+
+	int getBlessed, getGraced, getTruthed;
+	teehee();
+
+
+	teehee2();
+
+
+
+	teehee();
+
+	teehee2();
+
+
+
+
+}
+
+
+
+int haha, jaja, heehee, hoohoo;
+
+int teehee3() {
+	int teehee;
+
+	int haha;
+
+
+	int hoohoo, jaja;
+
+
+	int getWrekt, getZonked, getOutOfHere, RUN;
+
+	int getDestroyed;
+
+	teehee2();
+
+	teehee3();
+
+
+	teehee2();
+	teehee2();
+
+	teehee3();
+}

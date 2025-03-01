@@ -1,0 +1,29 @@
+ // This is a single-line comment
+    int     a    =   123  ;   /* Multi-line 
+                                  comment starts
+                                  and ends here */
+    
+    float   b  =  45.67 ;  /* Another comment */
+
+    /* Comment before an identifier */
+    identifier_1      =     9999    ;  
+
+    /* Nested comment start /* This should be ignored */ end */
+    
+    (     (   identifier_2   )   )  ;  
+
+    // Comment after an expression
+    x  =  ( y  +  z )  *  (  10   -    2   )   ;
+    
+    /* Comment
+       spanning
+       multiple
+       lines
+    */
+    
+    int    c   =   /* Inline comment */  77  ;
+    
+    /* Edge case: spaces before and after */
+         (  _var3_  )    ;
+    
+    // Comment at the end of the file

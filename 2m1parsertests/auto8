@@ -1,0 +1,17 @@
+int a, b, c;
+
+int main() {
+    alpha();
+}
+
+int alpha() {
+    beta();
+}
+
+int beta() {
+    gamma();
+}
+
+int gamma() {
+}
+

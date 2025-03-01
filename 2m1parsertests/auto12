@@ -1,0 +1,21 @@
+int x, y, z;
+
+int main() {
+    start();
+}
+
+int start() {
+    stepOne();
+}
+
+int stepOne() {
+    stepTwo();
+}
+
+int stepTwo() {
+    finish();
+}
+
+int finish() {
+}
+

@@ -1,0 +1,35 @@
+  /* Start of program */
+    
+    // Declare an integer variable with excessive spaces
+    int          x       =      42      ;   // Inline comment
+
+    /* Multi-line comment explaining 
+       the next floating point variable */
+    float      y =   3.1415     ;    
+
+    // Assign values with spaces and inline comments
+    a         =     b     +     100    ;   /* Adding 100 */
+    
+    /* Comment before an operator */
+    result     =     x  /* Plus operation */ +  y  ;   
+
+    /* Nested comments /* This is ignored */ still valid */
+    
+    (   (   value_1   )   )  ;   // More parentheses spacing
+
+    /* Complex expression with spaces */
+    output = (  var1    -    20 )  *  (  7  /   3   )  ;
+
+    /* Multi-line 
+       comment with 
+       unusual spacing */
+
+    int   c =   /* Inline comment between tokens */  77  ;
+
+    /* Spaces before and after */
+         (  _var_with_spaces_  )    ;
+
+    // Edge case: Comment before semicolon
+    variable  =   99   /* Last comment */  ;  
+
+    // End of file comment

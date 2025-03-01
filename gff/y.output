@@ -1,0 +1,229 @@
+   0  $accept : Gram $end
+
+   1  Gram : tokens PP prods
+
+   2  tokens : tokens KEYWD_TOK toklist
+   3         | tokens KEYWD_START IDENT
+   4         |
+
+   5  toklist : toklist IDENT
+   6          | IDENT
+
+   7  prods : prods prod
+   8        |
+
+   9  $$1 :
+
+  10  prod : IDENT $$1 COLON body_list SEMI
+
+  11  body_list : body_list BAR body
+  12            | body
+
+  13  body : body IDENT
+  14       | body TOKEN
+  15       |
+
+state 0
+	$accept : . Gram $end  (0)
+	tokens : .  (4)
+
+	.  reduce 4
+
+	Gram  goto 1
+	tokens  goto 2
+
+
+state 1
+	$accept : Gram . $end  (0)
+
+	$end  accept
+
+
+state 2
+	Gram : tokens . PP prods  (1)
+	tokens : tokens . KEYWD_TOK toklist  (2)
+	tokens : tokens . KEYWD_START IDENT  (3)
+
+	KEYWD_TOK  shift 3
+	KEYWD_START  shift 4
+	PP  shift 5
+	.  error
+
+
+state 3
+	tokens : tokens KEYWD_TOK . toklist  (2)
+
+	IDENT  shift 6
+	.  error
+
+	toklist  goto 7
+
+
+state 4
+	tokens : tokens KEYWD_START . IDENT  (3)
+
+	IDENT  shift 8
+	.  error
+
+
+state 5
+	Gram : tokens PP . prods  (1)
+	prods : .  (8)
+
+	.  reduce 8
+
+	prods  goto 9
+
+
+state 6
+	toklist : IDENT .  (6)
+
+	.  reduce 6
+
+
+state 7
+	tokens : tokens KEYWD_TOK toklist .  (2)
+	toklist : toklist . IDENT  (5)
+
+	IDENT  shift 10
+	KEYWD_TOK  reduce 2
+	KEYWD_START  reduce 2
+	PP  reduce 2
+
+
+state 8
+	tokens : tokens KEYWD_START IDENT .  (3)
+
+	.  reduce 3
+
+
+state 9
+	Gram : tokens PP prods .  (1)
+	prods : prods . prod  (7)
+
+	IDENT  shift 11
+	$end  reduce 1
+
+	prod  goto 12
+
+
+state 10
+	toklist : toklist IDENT .  (5)
+
+	.  reduce 5
+
+
+state 11
+	prod : IDENT . $$1 COLON body_list SEMI  (10)
+	$$1 : .  (9)
+
+	.  reduce 9
+
+	$$1  goto 13
+
+
+state 12
+	prods : prods prod .  (7)
+
+	.  reduce 7
+
+
+state 13
+	prod : IDENT $$1 . COLON body_list SEMI  (10)
+
+	COLON  shift 14
+	.  error
+
+
+state 14
+	prod : IDENT $$1 COLON . body_list SEMI  (10)
+	body : .  (15)
+
+	.  reduce 15
+
+	body  goto 15
+	body_list  goto 16
+
+
+state 15
+	body_list : body .  (12)
+	body : body . IDENT  (13)
+	body : body . TOKEN  (14)
+
+	TOKEN  shift 17
+	IDENT  shift 18
+	SEMI  reduce 12
+	BAR  reduce 12
+
+
+state 16
+	prod : IDENT $$1 COLON body_list . SEMI  (10)
+	body_list : body_list . BAR body  (11)
+
+	SEMI  shift 19
+	BAR  shift 20
+	.  error
+
+
+state 17
+	body : body TOKEN .  (14)
+
+	.  reduce 14
+
+
+state 18
+	body : body IDENT .  (13)
+
+	.  reduce 13
+
+
+state 19
+	prod : IDENT $$1 COLON body_list SEMI .  (10)
+
+	.  reduce 10
+
+
+state 20
+	body_list : body_list BAR . body  (11)
+	body : .  (15)
+
+	.  reduce 15
+
+	body  goto 21
+
+
+state 21
+	body_list : body_list BAR body .  (11)
+	body : body . IDENT  (13)
+	body : body . TOKEN  (14)
+
+	TOKEN  shift 17
+	IDENT  shift 18
+	SEMI  reduce 11
+	BAR  reduce 11
+
+
+10 terminals, 9 nonterminals
+16 grammar rules, 22 states
+
+grammar parser grammar
+symbol# value# symbol
+     0      0  $end
+     1    256  error
+     2    257  KEYWD_TOK
+     3    258  KEYWD_START
+     4    259  TOKEN
+     5    260  IDENT
+     6    261  COLON
+     7    262  SEMI
+     8    263  BAR
+     9    264  PP
+    10    265  $accept
+    11    266  Gram
+    12    267  body
+    13    268  body_list
+    14    269  tokens
+    15    270  prods
+    16    271  toklist
+    17    272  prod
+    18    273  $$1

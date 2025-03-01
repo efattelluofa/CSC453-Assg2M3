@@ -1,0 +1,47 @@
+int afunc() {
+  int a, b, p, q;
+    if(a > b) {
+
+      } else {
+          if(a == b){
+              /* if() else {} */
+            }
+        } if (a == p) {
+
+          } if (b == q) ; else;
+
+    if(a == b) {
+        if(q > p) {
+
+          } else if (a > b);
+      };
+
+      if(q == p) ; else if (a == b) {} else if(a == a) ; else {if(a == b) if(b == q);}; 
+
+    afunc();
+
+  }
+
+int bfunc(int a) {
+  int b;
+  bfunc(b);
+  }
+
+int cfunc(int a, int b) {
+    int c, d;
+    cfunc(c, d);
+    cfunc(1, 2);
+  }
+
+int glob1, glob2, glob3;
+
+int dfunc(int a, int b, int c) {
+    int z, d, e;
+    cfunc(c, d);
+    cfunc(1, 2);
+    dfunc(c, d, 1);
+    dfunc(1, 2, c);
+    while (glob1 == glob2) {
+    cfunc(1, glob1, glob2);
+    }
+  }

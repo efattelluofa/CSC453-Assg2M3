@@ -1,0 +1,12 @@
+int main() {
+    int num, status;
+    num = 7;
+    status = 0;
+
+    if (num > 5) {
+        status = 1;
+    }
+
+    return status;
+}
+

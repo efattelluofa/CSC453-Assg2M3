@@ -1,0 +1,17 @@
+int a, b;
+
+int initialize() {
+    prepare();
+    load();
+}
+
+int prepare() {
+}
+
+int load() {
+}
+
+int main() {
+    initialize();
+}
+

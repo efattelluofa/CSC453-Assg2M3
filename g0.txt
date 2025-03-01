@@ -1,0 +1,39 @@
+/*
+ * File: g0.txt
+ * Author: Saumya Debray
+ * Purpose: Provides the grammar for the G0 language subset in a form
+ *          suitable for input to the gff FIRST/FOLLOW computation tool.
+ */
+
+%token id kwINT LPAREN RPAREN LBRACE RBRACE SEMI
+%start prog
+%%
+
+prog : func_defn   prog
+     | /* epsilon */
+     ;
+     
+type : kwINT
+    ;
+
+func_defn : type id LPAREN opt_formals RPAREN LBRACE opt_var_decls opt_stmt_list RBRACE
+    ;
+
+opt_formals : /* epsilon */
+    ;
+
+opt_var_decls : /* epsilon */
+    ;
+
+opt_stmt_list : stmt opt_stmt_list
+    | /* epsilon */
+    ;
+
+stmt : fn_call
+    ;
+
+fn_call : id LPAREN opt_expr_list RPAREN SEMI
+    ;
+
+opt_expr_list : /* epsilon */
+    ;

@@ -1,0 +1,17 @@
+int a, b;
+
+int main() {
+    first();
+    second();
+    third();
+}
+
+int first() {
+}
+
+int second() {
+}
+
+int third() {
+}
+

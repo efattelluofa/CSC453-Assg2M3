@@ -1,0 +1,621 @@
+/*
+ * Author: Edward Fattell
+ * File: parser.c
+ * Purpose: Parser for G0, and eventually C-- compiler
+ */
+#include "scanner.h"
+#include <stddef.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+extern int get_token();
+extern int parse();
+
+extern int chk_decl_flag;
+extern int curr_tok;
+extern int linecnt;
+extern char *lexeme;
+
+int curr_tok;
+
+void match(Token expected);
+
+// Grammar Rules
+void prog();
+void var_decl();
+void decl_or_func(); // TODO: Where is ID list handled
+void type();
+void func_defn();
+int opt_formals();
+int formals();
+void opt_var_decls();
+void opt_stmt_list();
+void stmt();
+void if_stmt();
+void while_stmt();
+void return_stmt();
+void assg_stmt();
+void fn_call(char *id);
+int opt_expr_list();
+int expr_list();
+void bool_exp();
+void arith_exp();
+void relop();
+void check_var(char *lexeme);
+
+enum decltype { VAR, FUNC } typedef decltype;
+
+struct symboltab {
+  char *name;
+  Token type;
+  decltype dtype;
+  int argcnt;
+  struct symboltab *next;
+} typedef symboltab;
+
+int oldline = 0;
+
+void freeSymTab(symboltab *tabin);
+void freeTabs(void);
+
+enum scope { GLOBAL, LOCAL } curscope = GLOBAL;
+
+symboltab *globl = NULL;
+symboltab *local = NULL;
+
+char *token_name[] = {
+    "UNDEF",  "ID",    "INTCON", "LPAREN", "RPAREN", "LBRACE",  "RBRACE",
+    "COMMA",  "SEMI",  "kwINT",  "kwIF",   "kwELSE", "kwWHILE", "kwRETURN",
+    "opASSG", "opADD", "opSUB",  "opMUL",  "opDIV",  "opEQ",    "opNE",
+    "opGT",   "opGE",  "opLT",   "opLE",   "opAND",  "opOR",    "opNOT",
+};
+
+void createEntry(char *lexeme, decltype dtype) {
+  // check if in table first
+  symboltab **curtab = NULL;
+  if (curscope == GLOBAL) {
+    curtab = &globl;
+  } else {
+    curtab = &local;
+  }
+
+  for (symboltab *itab = *curtab; itab != NULL; itab = itab->next) {
+    // printf("ITab lexeme %s Cur lexeme %s\n", itab->name, lexeme);
+    if (chk_decl_flag && !strcmp(lexeme, itab->name)) {
+      fprintf(stderr, "Symbol table ERROR LINE %d at token %s, at lexeme%s\n",
+              linecnt, token_name[curr_tok], lexeme);
+      exit(1);
+    }
+  }
+
+  symboltab *newHd = malloc(sizeof(symboltab));
+  newHd->dtype = dtype;
+  // printf("\ncreating new node with lexeme %s\n", lexeme);
+  newHd->argcnt = 0;
+  newHd->name = strdup(lexeme);
+  newHd->next = *curtab;
+  *curtab = newHd;
+}
+
+void createFuncEntry(char *lexeme, decltype dtype, int argcnt) {
+  // check if in table first
+  symboltab **curtab = NULL;
+  if (curscope == GLOBAL) {
+    curtab = &globl;
+  } else {
+    curtab = &local;
+  }
+
+  for (symboltab *itab = *curtab; itab != NULL; itab = itab->next) {
+    // printf("ITab lexeme %s Cur lexeme %s\n", itab->name, lexeme);
+    if (chk_decl_flag && !strcmp(lexeme, itab->name)) {
+      fprintf(stderr, "Symbol table ERROR LINE %d at token %s, at lexeme%s\n",
+              linecnt, token_name[curr_tok], lexeme);
+      exit(1);
+    }
+  }
+
+  symboltab *newHd = malloc(sizeof(symboltab));
+  newHd->dtype = dtype;
+  // printf("creating new node with lexeme %s\n", lexeme);
+  newHd->argcnt = argcnt;
+  newHd->name = strdup(lexeme);
+  newHd->next = *curtab;
+  *curtab = newHd;
+  // printf("created new table func with lex %s\n", lexeme);
+}
+
+int parse() {
+  atexit(freeTabs);
+  curr_tok = get_token();
+  prog();
+  match(EOF);
+  return 0;
+}
+
+void match(Token expected) {
+  if (curr_tok == expected) {
+    oldline = linecnt;
+    curr_tok = get_token();
+  } else {
+    fprintf(stderr,
+            "MATCH ERROR LINE %d at token %s, expected %s at lexeme %s\n",
+            linecnt, token_name[curr_tok], token_name[expected], lexeme);
+    exit(1);
+  }
+}
+
+void prog() {
+  while (curr_tok == kwINT) {
+    match(kwINT);
+    decl_or_func();
+  }
+
+  // iterate to simulate recursion
+  if (curr_tok == EOF) {
+    // Epsilon
+  } else {
+    fprintf(stderr, "NOT EOF ERROR LINE %d at token %d, at lexeme%s\n", linecnt,
+            curr_tok, lexeme);
+    exit(1);
+  }
+}
+
+void func_defn() {
+  match(ID);
+  match(LPAREN);
+  opt_formals();
+  // printf("curr_tok after formals %s", token_name[curr_tok]);
+  match(RPAREN);
+  match(LBRACE);
+  opt_var_decls();
+  opt_stmt_list();
+  match(RBRACE);
+  // printf("after func defn\n");
+}
+
+void id_list_rest() {
+  while (curr_tok == COMMA) {
+    // printf("at id list comma\n");
+    match(COMMA);
+    // printf("at id list ID\n");
+    if (curr_tok == ID) {
+      createEntry(lexeme, VAR);
+    }
+    match(ID);
+  }
+}
+
+void id_list() {
+  if (curr_tok == ID && chk_decl_flag) {
+    // printf("create entry at id_list\n");
+    createEntry(lexeme, VAR);
+  }
+  match(ID);
+  if (curr_tok != COMMA)
+    return;
+  // match(COMMA);
+  // printf("Before id list rest\n");
+  id_list_rest();
+}
+
+int formals() {
+  int formalcnt = 0;
+
+  while (curr_tok == kwINT) {
+    type();
+    if (curr_tok == ID)
+      createEntry(lexeme, VAR);
+    match(ID);
+    formalcnt++;
+
+    if (curr_tok != COMMA) {
+      break;
+    }
+
+    match(COMMA);
+    if (curr_tok != kwINT) {
+      match(kwINT);
+    }
+  }
+  return formalcnt;
+}
+
+void decl_or_func() {
+  char *funcName = strdup(lexeme);
+  match(ID);
+  // printf("decl or func after ID tok: %d\n", curr_tok);
+  if (curr_tok == SEMI) {
+    createEntry(funcName, VAR);
+    match(SEMI);
+
+  } else if (curr_tok == COMMA) {
+
+    createEntry(funcName, VAR);
+    // must be decl
+    id_list_rest();
+    match(SEMI);
+
+  } else {
+
+    // must be func, match the rest
+    match(LPAREN);
+    curscope = LOCAL;
+
+    int argcnt = formals();
+
+    curscope = GLOBAL;
+    createFuncEntry(funcName, FUNC, argcnt);
+    curscope = LOCAL;
+
+    match(RPAREN);
+    match(LBRACE);
+    opt_var_decls();
+    // printf("after var decls\n");
+    opt_stmt_list();
+    // printf("curr_tok after stmt list %s\n", token_name[curr_tok]);
+    match(RBRACE);
+
+    freeSymTab(local);
+    local = NULL;
+    curscope = GLOBAL;
+  }
+  free(funcName);
+  funcName = NULL;
+}
+
+int opt_formals() {
+  if (curr_tok == kwINT) {
+    return formals();
+  }
+  return 0;
+}
+
+void var_decl() {
+  type();
+  id_list();
+  match(SEMI);
+}
+
+void opt_var_decls() {
+  if (curr_tok == EOF) {
+    return;
+  }
+
+  while (curr_tok == kwINT) {
+    var_decl();
+  }
+}
+
+void opt_stmt_list() {
+  // iterate while the curr_tok is in the first set of stmt
+  while (curr_tok == ID || curr_tok == kwWHILE || curr_tok == kwIF ||
+         curr_tok == kwRETURN || curr_tok == LBRACE || curr_tok == SEMI) {
+    // printf("Calling stmt\n");
+    stmt();
+  }
+  // printf("after stmt list\n");
+}
+
+void stmt() {
+  // printf("In sgtmt lexeme: %s\n", lexeme);
+  char *id = NULL;
+  switch (curr_tok) {
+  case (ID):
+    // printf("In fn call or assg\n");
+    if (curr_tok == ID && strlen(lexeme)) {
+      id = strdup(lexeme);
+    }
+    match(ID);
+    // Could be either assignment or fn call; leftfactor
+    if (curr_tok == opASSG) {
+      // printf("In op assign\n");
+      check_var(id);
+      match(opASSG);
+      arith_exp();
+      match(SEMI);
+      free(id);
+      return;
+    }
+    // match the rest of fn call
+    fn_call(id);
+
+    free(id);
+    id = NULL;
+
+    match(SEMI);
+    break;
+  case (kwWHILE):
+    // printf("In while block\n");
+    while_stmt();
+    break;
+  case (kwIF):
+    // printf("In if block\n");
+    if_stmt();
+    break;
+  case (kwRETURN):
+    // printf("In return\n");
+    return_stmt();
+    break;
+  case (LBRACE):
+    match(LBRACE);
+    // printf("In lbrace \n");
+    opt_stmt_list();
+    // printf("Tok after stmt list: %s token: %s\n", lexeme,
+    // token_name[curr_tok]);
+    match(RBRACE);
+    break;
+  case (SEMI):
+    // printf("In semi\n");
+    match(SEMI);
+    break;
+  }
+}
+
+void if_stmt() {
+  match(kwIF);
+  match(LPAREN);
+  bool_exp();
+  match(RPAREN);
+  stmt();
+  if (curr_tok == kwELSE) {
+    match(kwELSE);
+    stmt();
+  }
+}
+
+void while_stmt() {
+  match(kwWHILE);
+  match(LPAREN);
+  bool_exp();
+  match(RPAREN);
+  stmt();
+  // printf("Exited while stmt\n");
+}
+
+void return_stmt() {
+  match(kwRETURN);
+  if (curr_tok == SEMI) {
+    match(SEMI);
+  } else {
+    arith_exp();
+    match(SEMI);
+  }
+}
+
+void assg_stmt() {
+  match(ID);
+  match(opASSG);
+  arith_exp();
+  match(SEMI);
+}
+
+void fn_call(char *id) {
+  // printf("\n\n\n ------------IN FUCNTION CALL lexeme %s------------\n\n\n\n",
+  // lexeme);
+  char *lexemeLoc = id;
+  match(LPAREN);
+  int exprcnt = opt_expr_list();
+  match(RPAREN);
+
+  if (chk_decl_flag) {
+    for (symboltab *itab = local; itab != NULL; itab = itab->next) {
+      // printf("at itab | %s\n", itab->name);
+      if (!strcmp(lexemeLoc, itab->name)) {
+        // printf("\n\n\nFound entry with the same ID %d\n",
+        // itab->dtype);
+        if (itab->dtype != FUNC) {
+          fprintf(stderr,
+                  "ERROR LINE %d at token %d, at lexeme%s, calling a "
+                  "variable as "
+                  "a function in local\n",
+                  linecnt, curr_tok, lexemeLoc);
+          free(lexemeLoc);
+          lexemeLoc = NULL;
+          exit(1);
+        }
+        if (itab->argcnt != exprcnt) {
+          fprintf(stderr,
+                  "ERROR LINE %d at token %d, at lexeme%s, wrong number of "
+                  "args for function call, expected %d, got %d",
+                  linecnt, curr_tok, lexemeLoc, itab->argcnt, exprcnt);
+          free(lexemeLoc);
+          lexemeLoc = NULL;
+          exit(1);
+        }
+      }
+    }
+    for (symboltab *itab = globl; itab != NULL; itab = itab->next) {
+      // printf("In global table at itab %s\n", itab->name);
+      if (!strcmp(lexemeLoc, itab->name)) {
+        if (itab->dtype != FUNC) {
+          fprintf(stderr,
+                  "ERROR LINE %d at token %d, at lexeme%s, calling a "
+                  "variable as "
+                  "a function in global\n",
+                  linecnt, curr_tok, lexemeLoc);
+          free(lexemeLoc);
+          lexemeLoc = NULL;
+          exit(1);
+        }
+        if (itab->argcnt != exprcnt) {
+          fprintf(stderr,
+                  "ERROR LINE %d at token %d, at lexeme%s, wrong number of "
+                  "args for function call, expected %d, got %d",
+                  linecnt, curr_tok, lexemeLoc, itab->argcnt, exprcnt);
+          free(lexemeLoc);
+          lexemeLoc = NULL;
+          exit(1);
+        }
+        return;
+      }
+    }
+  }
+
+  if (chk_decl_flag) {
+    fprintf(stderr, "FUNC NOT DEFINED ERROR LINE %d at token %d, at lexeme%s\n",
+            linecnt, curr_tok, lexemeLoc);
+    free(lexemeLoc);
+    lexemeLoc = NULL;
+    exit(1);
+  }
+}
+
+int opt_expr_list() {
+  if (curr_tok == ID || curr_tok == INTCON) {
+    return expr_list();
+  }
+  return 0;
+  /*if (curr_tok == EOF) {
+    // Do Nothing
+    return;
+  }
+  expr_list();
+  */
+}
+
+int expr_list() {
+  // printf("In expr list\n");
+  int exprcnt = 0;
+  arith_exp();
+  exprcnt++;
+  while (curr_tok == COMMA) {
+    match(COMMA);
+    arith_exp();
+    exprcnt++;
+  }
+  return exprcnt;
+}
+
+void bool_exp() {
+  arith_exp();
+  relop();
+  arith_exp();
+}
+
+void arith_exp() {
+  if (curr_tok == ID) {
+    if (chk_decl_flag) {
+      for (symboltab *itab = local; itab != NULL; itab = itab->next) {
+        // printf("at itab | %s\n", itab->name);
+        if (!strcmp(lexeme, itab->name)) {
+          // printf("\n\n\nFound entry with the same ID %s\n", itab->name);
+          if (itab->dtype != VAR) {
+            fprintf(stderr,
+                    "ERROR LINE %d at token %d, at lexeme%s, using a function "
+                    "as a variable.",
+                    linecnt, curr_tok, lexeme);
+            exit(1);
+          }
+          match(ID);
+          return;
+        }
+      }
+      for (symboltab *itab = globl; itab != NULL; itab = itab->next) {
+        // printf("In global table at itab %s\n", itab->name);
+        if (!strcmp(lexeme, itab->name)) {
+          // printf("\n\n\nFound entry with the same ID %s\n", itab->name);
+          if (itab->dtype != VAR) {
+            fprintf(stderr,
+                    "ERROR LINE %d at token %d, at lexeme%s, calling a "
+                    "variable as "
+                    "a function in global\n",
+                    linecnt, curr_tok, lexeme);
+            exit(1);
+          }
+          match(ID);
+          return;
+        }
+      }
+      fprintf(stderr,
+              "ERROR LINE %d at token %d, at lexeme%s, symbol undefined.\n",
+              linecnt, curr_tok, lexeme);
+      exit(1);
+    }
+  }
+  match(INTCON);
+}
+
+void relop() {
+  switch (curr_tok) {
+  case (opEQ):
+    match(opEQ);
+    break;
+  case (opNE):
+    match(opNE);
+    break;
+  case (opLE):
+    match(opLE);
+    break;
+  case (opLT):
+    match(opLT);
+    break;
+  case (opGE):
+    match(opGE);
+    break;
+  case (opGT):
+    match(opGT);
+    break;
+  }
+}
+
+void type() {
+  match(kwINT);
+  //
+}
+
+void check_var(char *lexeme) {
+  if (chk_decl_flag) {
+    for (symboltab *itab = local; itab != NULL; itab = itab->next) {
+      // printf("at itab | %s\n", itab->name);
+      if (!strcmp(lexeme, itab->name)) {
+        // printf("\n\n\nFound entry with the same ID %d\n",
+        // itab->dtype);
+        if (itab->dtype != VAR) {
+          fprintf(stderr,
+                  "ERROR LINE %d at token %d, at lexeme%s, using a function "
+                  "as a variable.",
+                  linecnt, curr_tok, lexeme);
+          exit(1);
+        }
+        return;
+      }
+    }
+    for (symboltab *itab = globl; itab != NULL; itab = itab->next) {
+      // printf("In global table at itab %s\n", itab->name);
+      if (!strcmp(lexeme, itab->name)) {
+        if (itab->dtype != VAR) {
+          fprintf(stderr,
+                  "ERROR LINE %d at token %d, at lexeme%s, calling a "
+                  "variable as "
+                  "a function in global\n",
+                  linecnt, curr_tok, lexeme);
+          exit(1);
+        }
+        return;
+      }
+    }
+    fprintf(stderr,
+            "ERROR LINE %d at token %d, at lexeme%s, symbol undefined.\n",
+            linecnt, curr_tok, lexeme);
+    exit(1);
+  }
+}
+
+void freeSymTab(symboltab *tabin) {
+  symboltab *nexttab = tabin;
+  while (tabin != NULL) {
+    nexttab = tabin->next;
+    free(tabin->name);
+    free(tabin);
+    tabin = nexttab;
+  }
+}
+
+void freeTabs(void) {
+  freeSymTab(local);
+  local = NULL;
+  freeSymTab(globl);
+  globl = NULL;
+}

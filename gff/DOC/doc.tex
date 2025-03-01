@@ -1,0 +1,431 @@
+\documentclass{article}
+
+\usepackage{skd}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\newcommand{\gff}{{\sf gff }}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{document}
+
+\title{\textsf{\textbf{gff: A Tool for Computing FIRST and FOLLOW Sets}}}
+
+\author{{Saumya Debray}\\
+      {\em Department of Computer Science}\\
+      {\em University of Arizona}\\
+      {\em Tucson, AZ 85721.}
+  }
+
+
+\date{~}
+
+\maketitle
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\section{Description}
+
+\gff is a simple tool that takes as input a contex free grammar, and
+produces as output the FIRST and FOLLOW sets for the nonterminals of the
+grammar.  It's a pretty bare-bones no frills tool, with only rudimentary
+error checking and handling.
+
+As a simple example, consider the CFG
+%
+\begin{quote}
+$S \longrightarrow (~ S ~) ~\mid~ \varepsilon$
+\end{quote}
+%
+To compute the FIRST and FOLLOW sets for this grammar, we first create a
+file---say, {\tt ex.in}---specifying the grammar:
+%
+\begin{quote}
+{\tt
+ex.in:\\
+\begin{tabular}{|l|}\hline
+\begin{minipage}{3.5in}
+\begin{tabbing}
+S \= \kill
+\%\%\\
+S : '(' S ')'\\
+\> $|$ /* epsilon */~~~~~\\
+\> ;
+\end{tabbing}
+\end{minipage}
+\\ \hline
+\end{tabular}
+}
+\end{quote}
+%
+The first line of this file, `{\tt \%\%}', is a delimiter that separates 
+some optional declarations (whicch come before the {\tt \%\%} delimiter---in
+this case, there are no declarations) from the grammar productions.  The
+syntax of the input files is discussed below.\footnote{People acquainted
+with the tools {\tt yacc} or {\tt bison} will see strong similarities
+between the syntax of \gff input files and those for {\tt yacc}/{\tt bison}.
+This is not an accident.}
+
+\gff is invoked on this file as follows (with `{\tt \%}' being
+the shell prompt):
+%
+\begin{quote}
+{\tt \% gff ex.in}
+\end{quote}
+%
+and produces the following output:
+%
+\begin{quote}
+\begin{verbatim}
+FIRST sets:
+  S:   '(' <epsilon> 
+
+FOLLOW sets:
+  S:   <EOF> ')' 
+\end{verbatim}
+\end{quote}
+
+\section{\gff Usage}
+
+\gff takes a single argument, the name of a file specifying a context free
+grammar.  It produces as output, on {\tt stdout}, the FIRST and FOLLOW sets
+of the nonterminals of that grammar.
+
+\section{Input Syntax}
+
+\subsection{File Structure}
+
+An input file consists of two parts: a {\em declarations} part and a
+{\em productions} part.  The two parts are separated by the delimiter
+`{\tt \%\%}' on a line by itself.  The file therefore has the following
+structure: 
+%
+\begin{quote}
+{\tt
+\begin{tabular}{|l|}\hline
+\begin{minipage}{3.5in}
+$\left\}
+   \begin{array}{ll}
+	{~}\\
+	{\mbox{\it declarations}}\\
+	{~}\\ 
+   \end{array}
+ \right.$\\
+\%\%\\
+$\left\}
+   \begin{array}{ll}
+	{~}\\
+	{\mbox{\it grammar rules}}\\
+	{~}\\ 
+   \end{array}
+ \right.$\\
+\end{minipage}
+\\ \hline
+\end{tabular}
+}
+\end{quote}
+%
+Both the declarations and the grammar rules are optional, but the 
+delimiter between them is required.  Thus, the
+shortest legal \gff input would be the file consisting simply of the
+`{\tt \%\%}' delimiter.
+
+\subsection{Comments}
+
+Comments are as in C: a character sequence (possibly spanning multiple
+lines) starting with `{\tt /*}' and terminated by `{\tt */}', with
+no occurrences of `{\tt */}' in between.
+
+Comments can appear anywhere in the input file except for the line
+containing the `{\tt \%\%}' delimiter.
+
+\subsection{Identifiers}\label{sec:ID}
+
+Identifiers are used to name nonterminals and, possibly, terminals.
+An identifier is as in C, and consists of a letter followed by zero or more
+letters, digits, and underscores.
+
+Examples: {\tt ID}, {\tt IntegerConst}, {\tt expression}, {\tt stmt\_list}
+
+\subsection{Declarations}
+
+The optional declarations section specifies identifiers that are token
+names, as well as the start symbol of the grammar.
+
+\subsubsection{Tokens}\label{sec:tokens}
+
+Tokens are declared using the `{\tt \%token}' keyword.  Tokens that
+are given names, e.g., ``IDENT'' (identifier) or ``INTCONST'' (integer
+constant), must be declared as tokens; ``character constant'' tokens
+(a single character preceded and followed by a single quote)
+e.g., {\tt '+'}, {\tt '('}, need not be explicitly declared.
+
+The declarations section can contain zero or more
+token declarations.  Each such declaration is of the form
+%
+\begin{quote}
+{\tt \%token} {\em id\_list}
+\end{quote}
+%
+where {\em id\_list} is a list of token names
+separated by whitespace.  Each token name is an identifier.
+As an example, suppose that the identifiers we want to declare are: ID,
+INTCONST, STRINGCONST, and CHARCONST.  The following are all acceptable ways
+to do this:
+%
+\begin{enumerate}
+\item
+A single `{\tt \%token}' declaration with a list of identifiers:
+\begin{quote}
+\begin{tabular}{|l|}\hline
+\begin{minipage}{3.5in}
+\ \\
+{\tt \%token ID INTCONST STRINGCONST CHARCONST}
+\ \\
+\end{minipage}
+\\ \hline
+\end{tabular}
+\end{quote}
+
+\item
+Multiple `{\tt \%token}' declarations, each with a list of identifiers:
+\begin{quote}
+\begin{tabular}{|l|}\hline
+\begin{minipage}{3.5in}
+\ \\
+{\tt \%token ID INTCONST}\\
+{\tt \%token STRINGCONST CHARCONST}
+\ \\
+\end{minipage}
+\\ \hline
+\end{tabular}
+\end{quote}
+
+\item
+Multiple `{\tt \%token}' declarations, each with a single identifier:
+\begin{quote}
+\begin{tabular}{|l|}\hline
+\begin{minipage}{3.5in}
+\ \\
+{\tt \%token ID}\\
+{\tt \%token INTCONST}\\
+{\tt \%token STRINGCONST}\\
+{\tt \%token CHARCONST}
+\ \\
+\end{minipage}
+\\ \hline
+\end{tabular}
+\end{quote}
+\end{enumerate}
+
+\subsubsection{The Start Symbol}
+
+The start symbol of the grammar (which affects FOLLOW sets) can be specified
+explicitly, in the declarations portion of the input file, using the 
+`{\tt \%start}' keyword: 
+%
+\begin{quote}
+{\tt \%start} $\quad$ {\em id}
+\end{quote}
+%
+where {\em id} is an identifier that is the name of a nonterminal.  
+
+Start symbol specifications are optional: if no start symbol is specified,
+the first nonterminal listed in the {\em grammar rules} section of the
+input file will be taken to be the start symbol.  A grammar should not
+specify more than one start symbol: if multiple `{\tt \%start}' declarations
+are encountered in an input file, the first one is used.
+
+As an example, suppose we have a grammar with nonterminals
+$X$ and $Y$, where $Y$ is the start symbol.  The following would explicitly
+declare $Y$ to be the start symbol:
+%
+\begin{quote}
+\begin{tabular}{|l|}\hline
+\begin{minipage}{3.5in}
+\ \\
+{\tt \%token \ldots}\\
+{\tt \%start $Y$}\\
+{\tt \%\%}\\
+{\em \ldots grammar rules for $X$ \ldots}\\
+{\em \ldots grammar rules for $Y$ \ldots}\\
+\end{minipage}
+\\ \hline
+\end{tabular}
+\end{quote}
+%
+The start symbol could also be declared implicitly, as follows, where
+$Y$ is taken as the start symbol because it is the first nonterminal whose
+rules are listed in the grammar rules portion of the input:
+%
+\begin{quote}
+\begin{tabular}{|l|}\hline
+\begin{minipage}{3.5in}
+\ \\
+{\tt \%token \ldots}\\
+{\tt \%\%}\\
+{\em \ldots grammar rules for $Y$ \ldots}\\
+{\em \ldots grammar rules for $X$ \ldots}\\
+\end{minipage}
+\\ \hline
+\end{tabular}
+\end{quote}
+
+\subsection{Grammar Rules}
+
+The grammar rules section of the input file consists of a list of
+nonterminals and their productions;
+%
+\begin{quote}
+\begin{tabular}{|l|}\hline
+\begin{minipage}{3.5in}
+\ \\
+\ldots\\
+{\tt \%\%}\\
+{\em ${\it nonterminal}_1$'s productions}\\
+\ldots\\
+{\em ${\it nonterminal}_n$'s productions}\\
+\end{minipage}
+\\ \hline
+\end{tabular}
+\end{quote}
+
+\subsubsection{Nonterminals}
+
+Nonterminal names are identifiers (see Section \ref{sec:ID}).  Any
+identifier that has not been declared to be a token (see Section
+\ref{sec:tokens}) is taken to be a nonterminal.
+
+\subsubsection{Productions}
+
+The productions for a nonterminal are specified as follows.  Given a
+nonterminal $X$ with productions
+%
+\begin{quote}
+$X \rightarrow \alpha_1$\\
+$X \rightarrow \alpha_2$\\
+$\cdots$\\
+$X \rightarrow \alpha_n$
+\end{quote}
+%
+the productions would be written as: the nonterminal $X$; then
+a colon delimiter; then a list of the right hand sides of its productions
+separated by `$\mid$'; and finally ending with a semicolon:
+%
+\begin{quote}
+$X : \alpha_1 ~\mid~ \alpha_2 ~\mid~ \cdots ~\mid~ \alpha_n ~;$
+\end{quote}
+%
+There is exactly one such specification for each nonterminal in the grammar.
+Thus, for a grammar with nonterminals $X_1, \ldots, X_k$, the grammar rules
+$X_1, \ldots, X_k$, where nonterminal $X_i$ has productions
+%
+\begin{quote}
+$X_i \rightarrow \alpha_{i1} ~\mid~ \cdots \alpha_{in_i}$
+\end{quote}
+%
+the productions would be specified as
+%
+\begin{quote}
+\begin{tabular}{|l|}\hline
+\begin{minipage}{3.5in}
+\ \\
+{\tt \ldots}\\
+{\tt \%\%}\\
+{\tt $X_1$ : $\alpha_{11} ~\mid~ \cdots ~\mid~ \alpha_{1n_1}$ ;}\\
+{\tt \ldots}\\
+{\tt $X_k$ : $\alpha_{k1} ~\mid~ \cdots ~\mid~ \alpha_{kn_k}$ ;}\\
+\end{minipage}
+\\ \hline
+\end{tabular}
+\end{quote}
+%
+If one of the right hand sides is $\varepsilon$, it is written simply
+as expected, e.g.: the productions
+%
+\begin{quote}
+$S \rightarrow ( ~ S ~) ~\mid~ \varepsilon$
+\end{quote}
+%
+would be written as:
+%
+\begin{quote}
+\begin{tabular}{|l|}\hline
+\begin{minipage}{3.5in}
+\ \\
+{\tt \ldots}\\
+{\tt \%\%}\\
+{\tt S : '(' S ')'}\\
+{\tt \verb+  +$|$ /* epsilon */}\\
+{\tt ;}\\
+\end{minipage}
+\\ \hline
+\end{tabular}
+\end{quote}
+
+\section{An Example}
+
+Consider the context free grammar $G = (V, T, P, E)$, where:
+%
+\begin{itemize}
+\item[--]
+$V = \{E, E_1, T, T_1, F\}$ is the set of nonterminals;
+\item[--]
+$T = \{{\bf id}, {\bf intcon}, +, -, *, /, (, )\}$ is the set of terminals;
+\item[--]
+the start symbol is $E$; and
+\item[--]
+the set of productions $P$ consists of the following:
+%
+\begin{quote}
+$E \rightarrow T ~ E_1$\\
+$E_1 \rightarrow + ~T ~E_1 ~\mid~ - ~T ~E_1 ~\mid~ \varepsilon$\\
+$T \rightarrow F ~ T_1$\\
+$T_1 \rightarrow * ~F ~T_1 ~\mid~ / ~F ~T_1 ~\mid~ \varepsilon$\\
+$F \rightarrow {\bf id} ~\mid~ {\bf intcon}  ~\mid~ ( ~E~ )$
+\end{quote}
+\end{itemize}
+%
+A \gff input file specifying this grammar would be:
+%
+\begin{quote}
+\begin{tabular}{|l|}\hline
+\begin{minipage}{3.5in}
+\begin{verbatim}
+
+%token ID INTCON
+%start E
+%%
+E : T E1
+;
+
+E1 : '+' T E1
+   | '-' T E1
+   |  /* epsilon */
+;
+
+T : F T1
+;
+
+T1 : '*' F T1
+   | '/' F T1
+   |  /* epsilon */
+;
+
+F : ID
+  | INTCON
+  | '(' E ')'
+;
+
+\end{verbatim}
+\end{minipage}
+\\ \hline
+\end{tabular}
+\end{quote}
+%
+\section*{Some style comments}
+It simplifies life and improves readability (especially
+if you're going to be making changes to the grammar) to have each
+right-hand-side of a production listed on a separate line, as in the example
+above.  Also, indicating an epsilon-production via an explicit comment,
+as shown above, helps readibility.
+
+
+
+\end{document}

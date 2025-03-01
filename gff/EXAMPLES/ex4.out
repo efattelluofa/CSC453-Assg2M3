@@ -1,0 +1,50 @@
+
+FIRST sets:
+  arglist:   '(' 
+  assg:   ID 
+  assg_or_null:   ID <epsilon> 
+  bexp:   '!' '(' '-' ID INTCON CHARCON STRINGCON '*' '/' '+' EQ GE LE NE GT LT 
+  bexp1:   OR <epsilon> 
+  bexp_or_null:   <epsilon> '!' '(' '-' ID INTCON CHARCON STRINGCON '*' '/' '+' EQ GE LE NE GT LT 
+  bfactor:   '!' '(' '-' ID INTCON CHARCON STRINGCON '*' '/' '+' EQ GE LE NE GT LT 
+  bterm:   '!' '(' '-' ID INTCON CHARCON STRINGCON '*' '/' '+' EQ GE LE NE GT LT 
+  bterm1:   AND <epsilon> 
+  else_stmt:   ELSE <epsilon> 
+  explist:   <epsilon> '-' ID '(' INTCON CHARCON STRINGCON '*' '/' '+' ',' 
+  expr:   '-' ID '(' INTCON CHARCON STRINGCON '*' '/' '+' <epsilon> 
+  expr1:   '+' '-' <epsilon> 
+  expr_or_null:   <epsilon> '-' ID '(' INTCON CHARCON STRINGCON '*' '/' '+' 
+  factor:   '-' <epsilon> ID '(' INTCON CHARCON STRINGCON 
+  opt_arglist_or_subscript:   '(' <epsilon> '[' 
+  opt_subscript:   <epsilon> '[' 
+  relop:   EQ GE LE NE GT LT 
+  stmt:   IF WHILE FOR RETURN ID '{' ';' 
+  stmtlist:   IF WHILE FOR RETURN ID '{' ';' <epsilon> 
+  subscript:   '[' 
+  term:   '-' ID '(' INTCON CHARCON STRINGCON '*' '/' <epsilon> 
+  term1:   '*' '/' <epsilon> 
+
+FOLLOW sets:
+  arglist:   ';' '*' '/' '+' '-' EQ GE LE NE GT LT ',' ')' ']' AND OR 
+  assg:   ';' ')' 
+  assg_or_null:   ';' ')' 
+  bexp:   ')' ';' AND OR 
+  bexp1:   ')' ';' AND OR 
+  bexp_or_null:   ';' 
+  bfactor:   AND OR ')' ';' 
+  bterm:   OR ')' ';' AND 
+  bterm1:   OR ')' ';' AND 
+  else_stmt:   <EOF> ELSE IF WHILE FOR RETURN ID '{' ';' '}' 
+  explist:   ')' 
+  expr:   EQ GE LE NE GT LT ',' ')' ']' ';' AND OR '*' '/' '+' '-' 
+  expr1:   EQ GE LE NE GT LT ',' ')' ']' ';' AND OR '*' '/' '+' '-' 
+  expr_or_null:   ';' 
+  factor:   '*' '/' '+' '-' EQ GE LE NE GT LT ',' ')' ']' ';' AND OR 
+  opt_arglist_or_subscript:   '*' '/' '+' '-' EQ GE LE NE GT LT ',' ')' ']' ';' AND OR 
+  opt_subscript:   '=' 
+  relop:   '-' ID '(' INTCON CHARCON STRINGCON '*' '/' '+' AND OR ')' ';' 
+  stmt:   <EOF> ELSE IF WHILE FOR RETURN ID '{' ';' '}' 
+  stmtlist:   '}' 
+  subscript:   '=' '*' '/' '+' '-' EQ GE LE NE GT LT ',' ')' ']' ';' AND OR 
+  term:   '+' '-' EQ GE LE NE GT LT ',' ')' ']' ';' AND OR '*' '/' 
+  term1:   '+' '-' EQ GE LE NE GT LT ',' ')' ']' ';' AND OR '*' '/' 

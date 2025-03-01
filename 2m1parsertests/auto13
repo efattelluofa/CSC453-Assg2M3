@@ -1,0 +1,13 @@
+int a, b;
+
+int processData(int x, int y) {
+    cleanData();
+}
+
+int cleanData() {
+}
+
+int main() {
+    processData();
+}
+

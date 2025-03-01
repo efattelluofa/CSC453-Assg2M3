@@ -1,0 +1,14 @@
+int hello(int hi, int ho, int hum, int bye) {
+    int a;
+    int b;
+    int c;
+    int d;
+
+    e();
+
+    while(a == b) {
+        if(a > b) {
+
+          }
+      }
+  }

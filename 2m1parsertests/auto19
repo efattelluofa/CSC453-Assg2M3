@@ -1,0 +1,21 @@
+int value;
+
+int main() {
+    startProcess();
+}
+
+int startProcess() {
+    loadStep();
+    processStep();
+    endStep();
+}
+
+int loadStep() {
+}
+
+int processStep() {
+}
+
+int endStep() {
+}
+

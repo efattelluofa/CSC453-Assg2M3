@@ -1,0 +1,21 @@
+int data;
+
+int main() {
+    stageOne();
+}
+
+int stageOne() {
+    stageTwo();
+}
+
+int stageTwo() {
+    stageThree();
+}
+
+int stageThree() {
+    stageFour();
+}
+
+int stageFour() {
+}
+

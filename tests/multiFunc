@@ -1,0 +1,143 @@
+int foo (){
+    bar();
+    bar();
+}
+
+int bar () {
+    baz();
+    bar();
+
+
+
+
+
+
+
+    bar();
+    bar();
+    bar();
+    /*            */
+    bar();
+}
+
+int baz () {
+    bar();
+
+
+
+
+
+
+
+
+
+    bar();
+
+    bar();
+    /*
+     *
+     *
+     *
+     */
+    bar();
+    bar();
+    foo();
+
+
+
+
+
+
+
+
+
+
+
+
+}
+/*
+ *
+ *
+ *
+ *
+ */
+int bam () {
+    beach();
+    car();
+    cost();
+    co();
+}
+
+int main() {  
+    foo();  
+    bar();  
+    baz();  
+}
+
+int foo() {  
+    alpha();  
+    beta();  
+}
+
+int bar() {  
+    gamma();  
+    delta();  
+}
+
+int baz() {  
+    epsilon();  
+    zeta();  
+}
+
+int alpha() {  
+    bar();  
+}int beta() {  
+    main();  
+}
+
+int gamma() {  
+    baz();  
+} int delta() {  
+    foo();  
+}
+
+int epsilon() {  
+    beta();  
+    gamma();  
+}
+int zeta() {  
+    delta();  
+    foo();  
+}
+
+int main() {  
+    a();  
+    b();  
+}
+
+int a() {  
+    c();  
+    d();  
+}
+
+int b() {  
+    e();  
+    f();  
+}
+
+int c() {  
+    a();  
+}
+
+int d() {  
+    b();  
+    f();  
+}
+
+int e() {  
+    main();  
+}
+
+int f() {  
+    e();  
+}

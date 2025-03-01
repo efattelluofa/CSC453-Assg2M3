@@ -1,0 +1,17 @@
+int alpha, beta;
+
+int main() {
+    initialize();
+    execute();
+    cleanup();
+}
+
+int initialize() {
+}
+
+int execute() {
+}
+
+int cleanup() {
+}
+

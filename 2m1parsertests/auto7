@@ -1,0 +1,17 @@
+int m, n;
+
+int start() {
+    stepOne();
+    stepTwo();
+}
+
+int stepOne() {
+}
+
+int stepTwo() {
+}
+
+int main() {
+    start();
+}
+

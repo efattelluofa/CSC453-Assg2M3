@@ -1,0 +1,39 @@
+int x;
+int y;
+int z;
+
+
+int foo(int x, int y, int z) {
+
+	int bar;
+
+	int baz;
+	foo();
+
+}
+
+
+
+int bar() {
+	int x;
+
+
+	int y;
+
+	int baz;
+	foo();
+
+
+
+}
+
+
+int baz() {
+
+	int y;
+
+
+	int x;
+	bar();
+
+}

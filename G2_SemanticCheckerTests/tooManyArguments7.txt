@@ -1,0 +1,138 @@
+int haha;
+
+
+int hoohoo;
+
+
+int teehee1(int haha, int hoohoo, int heehee) {
+	int getWrekt;
+	int getTrashed;
+	int getZonked, getDestroyed, getSlammed;
+	int lolzor;
+	int rawr, xd, gollyGee;
+
+	;
+
+
+	teehee1(haha, hoohoo, heehee);
+
+	haha = 3;
+
+	getDestroyed = getSlammed;
+
+	if (getWrekt > getTrashed) 
+	while (getZonked < lolzor)
+	return 5;
+
+
+}
+
+int getWrekt;
+
+int lolzor, rawr, xd, gollyGee;
+int getSlammed;
+
+
+
+int teehee2() {
+	int goodness, me;
+	int i_really, really, REALLY, hate;
+	int writing;
+	int test, cases;
+
+	while (getWrekt >= goodness) {
+		teehee1(getSlammed, writing, 3);
+		if (test <= lolzor) rawr = REALLY;
+		else;
+
+
+		return;
+	}
+
+
+	if (i_really != 666) {
+		teehee2();
+
+		gollyGee = xd;
+
+		return 209349123;
+	} else {
+		writing = 2340;
+
+		teehee1(1, 2, 3);
+
+		teehee1(really, REALLY, hate);
+	}
+
+
+	getWrekt = getSlammed;
+	;
+
+	;
+
+	while (rawr >= gollyGee);
+
+
+	if (gollyGee <= rawr); else;
+
+
+	;
+}
+
+
+int teehee3(int I_AM_THE_ONLY_ONE) {
+	int wow;
+
+	int writing, all, of, these, testcases;
+
+	int is_actually;
+
+	int possibly;
+
+	int the, worst, thing, i, have, ever, done;
+
+	int heck;
+
+
+
+
+	while (haha == hoohoo) {
+		if (lolzor > 69) worst = testcases;
+		
+
+		teehee2();
+		teehee2();
+
+		teehee1(worst, thing, ever);
+
+		if (rawr < 69) is_actually = hoohoo;
+		else hoohoo = is_actually;
+
+		teehee1(heck, getWrekt, getSlammed);
+	}
+
+	while (writing == wow) {
+		{
+			{
+				{
+					{
+						{
+
+							heck = getWrekt;
+							return 69;
+							;
+							teehee3(haha, hoohoo, heck, getWrekt, getSlammed, rawr);
+						}
+
+					}
+				}
+			}
+		}
+	}
+
+
+	teehee3(69);
+}
+
+
+int teehee;

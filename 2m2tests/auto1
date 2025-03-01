@@ -1,0 +1,13 @@
+int main() {
+    int num, check;
+    num = 5;
+    check = 1;
+
+    if (num > 0) {
+        check = 1;
+    } else {
+        check = 0;
+    }
+
+    return check;
+}

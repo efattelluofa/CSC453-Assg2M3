@@ -1,0 +1,14 @@
+int check_zero(int num) {
+    if (num == 0) {
+        return 1;
+    } else {
+        return 0;
+    }
+}
+
+int main() {
+    int result;
+    result = check_zero;
+    return result;
+}
+

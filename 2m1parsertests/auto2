@@ -1,0 +1,9 @@
+int x, y;
+
+int compute(int a, int b) {
+    process();
+}
+
+int process() {
+}
+

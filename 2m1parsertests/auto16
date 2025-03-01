@@ -1,0 +1,17 @@
+int num1, num2, num3;
+
+int main() {
+    taskA();
+    taskB();
+    taskC();
+}
+
+int taskA() {
+}
+
+int taskB() {
+}
+
+int taskC() {
+}
+

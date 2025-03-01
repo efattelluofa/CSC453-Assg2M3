@@ -1,0 +1,4 @@
+int glob;
+int func(int iff, int elsee, int whilee, int returnn, int intt, int i124) {
+    func(iff, elsee, whilee, returnn, intt, i124, glob);
+  }

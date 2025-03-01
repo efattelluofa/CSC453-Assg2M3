@@ -1,0 +1,5 @@
+int x, y;
+
+int add(int a, int b) { int result; add(); }
+
+int main() { add(); }

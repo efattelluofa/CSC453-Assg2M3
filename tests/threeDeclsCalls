@@ -1,0 +1,10 @@
+int main() {  
+    foo();  
+    bar();  
+    baz();  
+}  
+
+int foo() { }  
+int bar() { }  
+int baz() { }
+

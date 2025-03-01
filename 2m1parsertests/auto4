@@ -1,0 +1,13 @@
+int a, b, c;
+
+int main() {
+    initialize();
+    finalize();
+}
+
+int initialize() {
+}
+
+int finalize() {
+}
+

@@ -1,0 +1,17 @@
+int globalVal;
+
+int orchestrate(int x, int y, int z) {
+    process();
+}
+
+int process() {
+    finalize();
+}
+
+int finalize() {
+}
+
+int main() {
+    orchestrate();
+}
+

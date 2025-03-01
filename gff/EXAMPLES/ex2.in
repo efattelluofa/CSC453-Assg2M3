@@ -1,0 +1,19 @@
+/*
+ * ex2.in
+ *
+ * The canonical expression grammar.
+ */
+
+%token number ident
+
+%%
+
+E : E '+' E
+  | E '-' E
+  | E '*' E
+  | E '/' E
+  | '(' E ')'
+  | '-' E
+  | number
+  | ident
+  ;

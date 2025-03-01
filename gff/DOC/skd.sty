@@ -1,0 +1,56 @@
+\usepackage{latexsym}
+\usepackage{epsf}
+%\usepackage{color}
+\usepackage{graphics}
+%\usepackage{here}
+\usepackage{mathptm}
+\usepackage{times}
+%\usepackage{fullpage}
+
+% expand margins to fit more on one page
+\setlength{\oddsidemargin}{0in}
+\setlength{\topmargin}{0cm}
+\setlength{\headheight}{0cm}
+\setlength{\headsep}{0cm}
+\setlength{\textwidth}{6.5in}
+\setlength{\textheight}{9in}
+
+% increase line spacing
+\setlength{\baselineskip}{1.5\baselineskip}
+\renewcommand{\baselinestretch}{1.10}
+
+% paragraph spacing
+\parskip 6pt
+
+\makeatletter
+% section headings
+\def\section{\@startsection {section}{1}{\z@}{-0.2ex plus -0.2ex minus 
+-.2ex}{0.1ex}{\Large\bf}}
+\def\subsection{\@startsection{subsection}{2}{\z@}{-0.15ex plus -0.15ex minus 
+-.2ex}{0.1ex plus .2ex}{\large\bf}}
+\def\subsubsection{\@startsection{subsubsection}{3}{\z@}{-0.25ex plus -0.2ex minus
+-.2ex}{0.1ex plus .2ex}{\normalsize\bf}}
+\def\paragraph{\@startsection{paragraph}{4}{\z@}{-0.25ex plus -0.2ex minus
+-.2ex}{0.1ex plus .2ex}{\normalsize\bf}}
+\makeatother
+
+\renewcommand{\floatpagefraction}{0.8}
+\renewcommand{\dblfloatpagefraction}{0.8}
+\renewcommand{\textfraction}{0.1}
+\setlength{\textfloatsep}{0.7\textfloatsep}
+\setlength{\dbltextfloatsep}{0.7\dbltextfloatsep}
+
+% increase line spacing
+\setlength{\baselineskip}{1.5\baselineskip}
+%
+%\renewcommand{\baselinestretch}{0.95}
+\sloppy
+%\setlength{\parskip}{1ex plus 1ex minus 1ex}    
+
+\newcommand{\Note}[2]{{\small \begin{description}\item[#1]{#2}\end{description}}}
+\newcommand{\comment}[1]{\textbf{\textsf{\textit{\small$\gg${#1}$\ll$}}}}
+
+\newcommand{\COMMENT}[1]{\marginpar[{\framebox[0.05in]{\parbox{0.7in}{\small #1}}}]{{\framebox[0.05in]{\parbox{0.7in}{\small #1}}}}}
+\newcommand{\FIX}[1]{{\sf ***FIX*** #1}}
+\newcommand{\UPDATE}[1]{{\sf ***UPDATE*** #1}}
+

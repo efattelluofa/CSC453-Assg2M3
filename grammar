@@ -1,0 +1,11 @@
+prog	:	func_defn   prog
+  	| 	ε
+type 	: 	kwINT
+func_defn 	: 	type   ID   LPAREN   opt_formals   RPAREN   LBRACE   opt_var_decls   opt_stmt_list   RBRACE
+opt_formals 	: 	ε
+opt_var_decls 	: 	ε
+opt_stmt_list 	: 	stmt   opt_stmt_list
+  	| 	ε
+stmt 	: 	fn_call   SEMI
+fn_call 	: 	ID   LPAREN   opt_expr_list   RPAREN
+opt_expr_list 	: 	ε

@@ -1,0 +1,16 @@
+Processing file: tests/auto2
+NOT EOF ERROR LINE 1 at token 3, at lexeme(
+Processing file: tests/auto3
+NOT EOF ERROR LINE 1 at token 18, at lexeme/
+Processing file: tests/auto3short
+NOT EOF ERROR LINE 3 at token 2, at lexeme123
+Processing file: tests/auto4
+NOT EOF ERROR LINE 3 at token 18, at lexeme/
+Processing file: tests/autoint
+MATCH ERROR LINE 1 at token opASSG, expected LPAREN at lexeme =
+Processing file: tests/autoMultiFunc
+Processing file: tests/badWComment
+MATCH ERROR LINE 7 at token LPAREN, expected SEMI at lexeme (
+Processing file: tests/branch
+NOT EOF ERROR LINE 1 at token 10, at lexemeif
+Processing file: tests/carrotUndef

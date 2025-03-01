@@ -1,0 +1,13 @@
+int x, y;
+
+int compute(int a, int b) {
+    helper();
+}
+
+int helper() {
+}
+
+int main() {
+    compute();
+}
+

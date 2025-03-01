@@ -1,0 +1,112 @@
+/*
+ * A subset of C containing some statements and expressions
+*/
+
+%token ID INTCON CHARCON STRINGCON INT CHAR VOID IF ELSE WHILE FOR RETURN 
+%token AND OR EQ GE LE NE GT LT
+%start stmt
+%%
+stmt : IF'(' bexp ')' stmt else_stmt
+     | WHILE '(' bexp ')' stmt
+     | FOR '(' assg_or_null ';' bexp_or_null ';' assg_or_null ')' stmt
+     | RETURN expr_or_null ';'
+     | assg ';'
+     | ID arglist ';'
+     | '{' stmtlist '}'
+     | ';'
+     ;
+
+else_stmt : ELSE stmt  /* optional else-part of a conditional */
+     | 
+     ;
+
+assg_or_null : assg    /* optional assignment in a for loop */
+     |
+     ;
+
+bexp_or_null : bexp    /* optional boolean test of a for loop */
+     |
+     ;
+
+expr_or_null : expr    /* optional expression */
+     |
+     ;
+
+assg : ID opt_subscript '=' expr
+     ;
+
+bexp : bterm bexp1   /* boolean expression */
+	;
+
+bexp1 : OR bterm bexp1
+      |
+	 ;
+
+bterm : bfactor bterm1
+	 ;
+
+bterm1 : AND bfactor bterm1
+	  |
+	  ;
+
+bfactor : expr relop expr
+     | '!' bexp
+     | '(' bexp ')'
+     ;
+
+expr : term expr1   /* arithmetic expression */
+     ;
+
+expr1 : '+' term expr1
+      | '-' term expr1
+      |
+      ;
+
+term : factor term1
+     ;
+
+term1 : '*' factor term1
+      | '/' factor term1
+      |
+      ;
+
+factor : '-' expr
+       | 
+     | ID opt_arglist_or_subscript
+     | '(' expr ')'
+     | INTCON
+     | CHARCON
+     | STRINGCON
+     ;
+
+explist : expr ',' explist
+     |
+     ;
+
+stmtlist : stmt stmtlist
+     |
+     ;
+
+arglist : '(' explist ')'
+     ;
+
+subscript : '[' expr ']'
+     ;
+
+opt_subscript : subscript
+     |
+     ;
+
+opt_arglist_or_subscript : arglist 
+     | subscript
+     |
+     ;
+
+relop : EQ
+      | GE
+      | LE
+      | NE
+      | GT
+      | LT
+      ;
+

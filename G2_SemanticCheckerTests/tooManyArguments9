@@ -1,0 +1,12 @@
+int funcA(int a, int b, int c) {
+  funcA(1, 2, 3);
+  }
+
+int funcB() {
+  int apple, pear, orange, bannana;
+    funcA(1,2, 3239424, 324324);
+    funcA(apple, pear, orange);
+    funcB();
+    funcB(apple);
+
+  }

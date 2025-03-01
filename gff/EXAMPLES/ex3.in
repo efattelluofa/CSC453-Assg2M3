@@ -1,0 +1,23 @@
+/*
+ * A different expression grammar
+ */
+
+%token number ident
+
+%%
+
+E : E '+' T
+  | E '-' T
+  | T
+;
+
+T : T '*' F
+  | T '/' F
+  | F
+;
+
+F : '(' E ')'
+  | '-' E
+  | number
+  | ident
+;

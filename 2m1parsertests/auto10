@@ -1,0 +1,9 @@
+int value;
+
+int doNothing() {
+}
+
+int main() {
+    doNothing();
+}
+

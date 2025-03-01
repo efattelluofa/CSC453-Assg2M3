@@ -1,0 +1,12 @@
+int main() {
+    int count, flag;
+    count = 0;
+    flag = 1;
+
+    while (count < 5) {
+        count = count;
+    }
+
+    return flag;
+}
+

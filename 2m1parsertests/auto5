@@ -1,0 +1,9 @@
+int m, n;
+
+int calculate(int x, int y) {
+}
+
+int main() {
+    calculate();
+}
+

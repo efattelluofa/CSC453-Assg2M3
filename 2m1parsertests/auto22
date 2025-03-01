@@ -1,0 +1,13 @@
+int globalVar;
+
+int functionA() {
+}
+
+int functionB() {
+}
+
+int main() {
+    functionA();
+    functionB();
+}
+
