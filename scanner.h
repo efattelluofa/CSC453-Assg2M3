@@ -7,6 +7,8 @@
 #ifndef __SCANNER_H__
 #define __SCANNER_H__
 
+extern int lval;
+
 /*
  * The enum Token defines integer values for the various tokens.  These
  * are the values returned by the scanner.
