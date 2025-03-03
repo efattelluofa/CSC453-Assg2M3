@@ -175,7 +175,7 @@ void id_list_rest() {
 }
 
 void id_list() {
-  if (curr_tok == ID && chk_decl_flag) {
+  if (curr_tok == ID) {
     // printf("create entry at id_list\n");
     createEntry(lexeme);
   }
@@ -281,7 +281,8 @@ void decl_or_func(Quad **subtree) {
     // printf("curr_tok after stmt list %s\n", token_name[curr_tok]);
     match(RBRACE);
 
-    print_ast(*subtree);
+    if (print_ast_flag)
+      print_ast(*subtree);
 
     freeSymTab(local);
     local = NULL;
@@ -315,10 +316,15 @@ void opt_var_decls() {
 void opt_stmt_list(Quad **subtree) {
   assert(*subtree == NULL);
 
-  Quad *newSubtree = new_quad(STMT_LIST);
-  *subtree = newSubtree;
+  Quad *newSubtree = NULL;
+  Quad *curSubtree = NULL;
 
-  Quad *curSubtree = newSubtree;
+  if (curr_tok == ID || curr_tok == kwWHILE || curr_tok == kwIF ||
+      curr_tok == kwRETURN || curr_tok == LBRACE || curr_tok == SEMI) {
+    newSubtree = new_quad(STMT_LIST);
+    *subtree = newSubtree;
+    curSubtree = newSubtree;
+  }
 
   // iterate while the curr_tok is in the first set of stmt
   while (curr_tok == ID || curr_tok == kwWHILE || curr_tok == kwIF ||
@@ -587,9 +593,9 @@ void arith_exp(Quad **subtree) {
   if (curr_tok == ID) {
     symboltab *tableentry;
 
-    if (chk_decl_flag) {
-      tableentry = getentry(lexeme, EITHER);
+    tableentry = getentry(lexeme, EITHER);
 
+    if (chk_decl_flag) {
       if (!tableentry) {
         linepexit(curr_tok, lexeme, "symbol undefined.");
       }
@@ -683,8 +689,8 @@ void check_var(char *id) {
 }
 
 int check_arg_count(char *id) {
+  symboltab *tableentry = getentry(id, EITHER);
   if (chk_decl_flag) {
-    symboltab *tableentry = getentry(id, EITHER);
 
     if (!tableentry) {
       linepexit(curr_tok, id, "symbol undefined.");
@@ -694,10 +700,8 @@ int check_arg_count(char *id) {
       linepexit(curr_tok, id,
                 "symbol declared as a variable but used as a function.");
     }
-
-    return tableentry->argcnt;
   }
-  return 0;
+  return tableentry->argcnt;
 }
 
 void linepexit(Token t, char *lexeme, char *msg) {
