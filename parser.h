@@ -14,6 +14,8 @@ extern int get_token();
 extern int parse();
 
 extern int chk_decl_flag;
+extern int print_ast_flag;
+
 extern int curr_tok;
 extern int linecnt;
 extern char *lexeme;

@@ -21,8 +21,8 @@ void prog();
 void var_decl();
 void decl_or_func(Quad **subtree); // TODO: Where is ID list handled
 void type();
-int opt_formals();
-int formals();
+int opt_formals(Quad **subtree);
+int formals(Quad **subtree);
 void opt_var_decls();
 void opt_stmt_list(Quad **subtree);
 void stmt(Quad **subtree);
@@ -153,6 +153,7 @@ void prog() {
   }
 
   ast_root = newASThead;
+  // print_ast(ast_root);
 
   if (curr_tok == EOF) {
     // Epsilon
@@ -186,13 +187,28 @@ void id_list() {
   id_list_rest();
 }
 
-int formals() {
+/*
+ * Creates a new subtree of type expr_list
+ * each node in the list points to an ID node representing each arg
+ */
+int formals(Quad **subtree) {
+  assert(*subtree == NULL);
+
+  Quad *newSubtree = NULL;
+  Quad *curSubtree = NULL;
+
   int formalcnt = 0;
 
   if (curr_tok == kwINT) {
+    newSubtree = new_quad(EXPR_LIST);
+    *subtree = newSubtree;
+    curSubtree = newSubtree;
     type();
-    createEntry(lexeme);
+
+    curSubtree->child0 = new_quad(IDENTIFIER);
+    curSubtree->child0->tableentry = createEntry(lexeme);
     match(ID);
+
     formalcnt++;
   }
 
@@ -200,8 +216,13 @@ int formals() {
     match(COMMA);
 
     type();
-    if (curr_tok == ID)
-      createEntry(lexeme);
+    if (curr_tok == ID) {
+      curSubtree->child1 = new_quad(EXPR_LIST);
+      curSubtree = curSubtree->child1;
+
+      curSubtree->child0 = new_quad(IDENTIFIER);
+      curSubtree->child0->tableentry = createEntry(lexeme);
+    }
     match(ID);
     formalcnt++;
   }
@@ -209,6 +230,13 @@ int formals() {
   return formalcnt;
 }
 
+/*
+ * func Quad:
+ * type = FUNC
+ * tableentry = `function's table entry
+ * child0 = expr_lit of formals
+ * child1 = body Quad
+ */
 void decl_or_func(Quad **subtree) {
   char funcName[1024];
   strcpy(funcName, lexeme);
@@ -228,7 +256,7 @@ void decl_or_func(Quad **subtree) {
 
   } else {
     // must be func, match the rest
-    assert(subtree == NULL);
+    assert(*subtree == NULL);
 
     Quad *newSubtree = new_quad(EXPR_LIST);
     *subtree = newSubtree;
@@ -236,11 +264,11 @@ void decl_or_func(Quad **subtree) {
     match(LPAREN);
     curscope = LOCAL;
 
-    int argcnt = formals();
+    int argcnt = formals(&newSubtree->child0);
 
     curscope = GLOBAL;
     // printf("creating new func %s with %d args\n", funcName, argcnt);
-    symboltab *tableentry = createFuncEntry(funcName, argcnt);
+    newSubtree->tableentry = createFuncEntry(funcName, argcnt);
     curscope = LOCAL;
 
     match(RPAREN);
@@ -253,16 +281,17 @@ void decl_or_func(Quad **subtree) {
     // printf("curr_tok after stmt list %s\n", token_name[curr_tok]);
     match(RBRACE);
 
+    print_ast(*subtree);
+
     freeSymTab(local);
     local = NULL;
     curscope = GLOBAL;
   }
 }
 
-// TODO: Remove subtree arg on var decls
-int opt_formals() {
+int opt_formals(Quad **subtree) {
   if (curr_tok == kwINT) {
-    return formals();
+    return formals(subtree);
   }
   return 0;
 }
@@ -284,7 +313,7 @@ void opt_var_decls() {
 }
 
 void opt_stmt_list(Quad **subtree) {
-  assert(subtree == NULL);
+  assert(*subtree == NULL);
 
   Quad *newSubtree = new_quad(STMT_LIST);
   *subtree = newSubtree;
@@ -298,15 +327,15 @@ void opt_stmt_list(Quad **subtree) {
     stmt(&curSubtree->child0);
 
     if (curSubtree->child0) {
-      newSubtree->child1 = new_quad(STMT_LIST);
-      newSubtree = newSubtree->child1;
+      curSubtree->child1 = new_quad(STMT_LIST);
+      curSubtree = curSubtree->child1;
     }
   }
   // printf("after stmt list\n");
 }
 
 void stmt(Quad **subtree) {
-  assert(subtree == NULL);
+  assert(*subtree == NULL);
 
   // printf("In sgtmt lexeme: %s\n", lexeme);
   char id[1024];
@@ -370,7 +399,7 @@ void stmt(Quad **subtree) {
 }
 
 void if_stmt(Quad **subtree) {
-  assert(subtree == NULL);
+  assert(*subtree == NULL);
 
   Quad *newSubtree = new_quad(IF);
   *subtree = newSubtree;
@@ -383,7 +412,6 @@ void if_stmt(Quad **subtree) {
 
   stmt(&newSubtree->child1);
 
-  Quad *else_subtree = NULL;
   if (curr_tok == kwELSE) {
     match(kwELSE);
     stmt(&newSubtree->child2);
@@ -391,7 +419,7 @@ void if_stmt(Quad **subtree) {
 }
 
 void while_stmt(Quad **subtree) {
-  assert(subtree == NULL);
+  assert(*subtree == NULL);
 
   Quad *newSubtree = new_quad(WHILE);
   *subtree = newSubtree;
@@ -408,7 +436,7 @@ void while_stmt(Quad **subtree) {
 }
 
 void return_stmt(Quad **subtree) {
-  assert(subtree == NULL);
+  assert(*subtree == NULL);
 
   Quad *newSubtree = new_quad(EXPR_LIST);
   *subtree = newSubtree;
@@ -426,7 +454,7 @@ void return_stmt(Quad **subtree) {
 
 // TODO: Look over
 void assg_stmt(Quad **subtree) {
-  assert(subtree == NULL);
+  assert(*subtree == NULL);
 
   Quad *newSubtree = new_quad(EXPR_LIST);
   *subtree = newSubtree;
@@ -442,10 +470,12 @@ void assg_stmt(Quad **subtree) {
 }
 
 void fn_call(Quad **subtree, char *id) {
-  assert(subtree == NULL);
+  assert(*subtree == NULL);
 
-  Quad *newSubtree = new_quad(EXPR_LIST);
+  Quad *newSubtree = new_quad(FUNC_CALL);
   *subtree = newSubtree;
+
+  newSubtree->tableentry = getentry(id, GLOBAL);
 
   // printf("\n\n\n ------------IN FUCNTION CALL lexeme %s------------\n\n\n\n",
   // lexeme);
@@ -491,17 +521,25 @@ int opt_expr_list(Quad **subtree, int expected_argcnt) {
 }
 
 int expr_list(Quad **subtree, int expected_argcnt) {
-  assert(subtree == NULL);
+  assert(*subtree == NULL);
 
-  Quad *newSubtree = new_quad(EXPR_LIST);
+  Quad *newSubtree = NULL;
+  Quad *curSubtree = NULL;
+
+  newSubtree = new_quad(EXPR_LIST);
   *subtree = newSubtree;
+  curSubtree = newSubtree;
 
+  print_ast(newSubtree);
   // printf("In expr list\n");
   int exprcnt = 0;
 
-  Quad *curSubtree = newSubtree;
-
   arith_exp(&curSubtree->child0);
+
+  printf("New list %d\n\n\n\n", curSubtree->child0->type);
+  print_ast(newSubtree);
+
+  printf("\n\n\n\n");
 
   exprcnt++;
 
@@ -522,6 +560,11 @@ int expr_list(Quad **subtree, int expected_argcnt) {
 
     arith_exp(&curSubtree->child0);
 
+    printf("New expr in list %d\n\n\n\n", curSubtree->child0->type);
+    print_ast(newSubtree);
+
+    printf("\n\n\n\n");
+
     if (chk_decl_flag && exprcnt > expected_argcnt) {
       char msg[1024];
       sprintf(msg,
@@ -530,11 +573,15 @@ int expr_list(Quad **subtree, int expected_argcnt) {
       linepexit(curr_tok, lexeme, msg);
     }
   }
+
+  printf(
+      "\n\n\n\n ----------------PRINTING EXPR_LIST-------------------------\n");
+  print_ast(newSubtree);
   return exprcnt;
 }
 
 void bool_exp(Quad **subtree) {
-  assert(subtree == NULL);
+  assert(*subtree == NULL);
 
   Quad *newSubtree = new_quad(DUMMY);
   *subtree = newSubtree;
@@ -545,7 +592,7 @@ void bool_exp(Quad **subtree) {
 }
 
 void arith_exp(Quad **subtree) {
-  assert(subtree == NULL);
+  assert(*subtree == NULL);
 
   Quad *newSubtree = new_quad(DUMMY);
   *subtree = newSubtree;
@@ -557,7 +604,7 @@ void arith_exp(Quad **subtree) {
       tableentry = getentry(lexeme, EITHER);
 
       if (!tableentry) {
-        linepexit(curr_tok, lexeme, "symbool undefined.");
+        linepexit(curr_tok, lexeme, "symbol undefined.");
       }
 
       if (tableentry->dtype != VAR) {

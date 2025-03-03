@@ -47,7 +47,7 @@ char *func_def_argname(void *ptr, int n) {
 
     while (ast != NULL) {
       if (i == n) {
-        return curarg->tableentry->name;
+        return curarg->child0->tableentry->name;
       }
       i++;
       curarg = curarg->child1;
@@ -65,7 +65,7 @@ char *func_def_argname(void *ptr, int n) {
 void *func_def_body(void *ptr) {
   Quad *ast = ptr;
   assert(ast != NULL);
-  return ast->child0;
+  return ast->child1;
 }
 
 /*
@@ -75,7 +75,7 @@ void *func_def_body(void *ptr) {
 char *func_call_callee(void *ptr) {
   Quad *ast = ptr;
   assert(ast != NULL);
-  return ast->child0->tableentry->name;
+  return ast->tableentry->name;
 }
 
 /*

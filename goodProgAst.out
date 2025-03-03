@@ -1,0 +1,100 @@
+func_def: teehee1
+  formals: haha, hoohoo, heehee
+  body:
+    {
+        teehee1(haha, hoohoo, heehee)
+        haha = 3
+        getDestroyed = getSlammed
+        if (getWrekt > getTrashed):
+        then:
+            while (getZonked < lolzor):
+                return: 5
+            end_while
+        else:
+        end_if
+    }
+/* func_def: teehee1 */
+
+func_def: teehee2
+  formals: 
+  body:
+    {
+        while (getWrekt >= goodness):
+            {
+                teehee1(getSlammed, writing, 3)
+                if (test <= lolzor):
+                then:
+                    rawr = REALLY
+                else:
+                end_if
+                return: 
+            }
+        end_while
+        if (i_really != 666):
+        then:
+            {
+                teehee2()
+                gollyGee = xd
+                return: 209349123
+            }
+        else:
+            {
+                writing = 2340
+                teehee1(1, 2, 3)
+                teehee1(really, REALLY, hate)
+            }
+        end_if
+        getWrekt = getSlammed
+        while (rawr >= gollyGee):
+        end_while
+        if (gollyGee <= rawr):
+        then:
+        else:
+        end_if
+    }
+/* func_def: teehee2 */
+
+func_def: teehee3
+  formals: I_AM_THE_ONLY_ONE
+  body:
+    {
+        while (haha == hoohoo):
+            {
+                if (lolzor > 69):
+                then:
+                    worst = testcases
+                else:
+                end_if
+                teehee2()
+                teehee2()
+                teehee1(worst, thing, ever)
+                if (rawr < 69):
+                then:
+                    is_actually = hoohoo
+                else:
+                    hoohoo = is_actually
+                end_if
+                teehee1(heck, getWrekt, getSlammed)
+            }
+        end_while
+        while (writing == wow):
+            {
+                {
+                    {
+                        {
+                            {
+                                {
+                                    heck = getWrekt
+                                    return: 69
+                                    teehee3(haha)
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        end_while
+        teehee3(69)
+    }
+/* func_def: teehee3 */
+

@@ -11,6 +11,8 @@
 
 extern int parse();
 extern int chk_decl_flag;
+extern int print_ast_flag;
+extern int gen_code_flag;
 
 int chk_decl_flag = 0;  /* set to 1 to do semantic checking */
 int print_ast_flag = 0; /* set to 1 to print out the AST */
