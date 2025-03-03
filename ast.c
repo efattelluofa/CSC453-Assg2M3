@@ -1,3 +1,8 @@
+/*
+ * Author: Edward Fattell
+ * File: ast.c
+ * Purpose: Helper procedures for ast print
+ */
 
 #include "ast.h"
 #include "parser.h"

@@ -1,4 +1,3 @@
-
 /*
  * File: parser.h
  * Author: Edward Fattell

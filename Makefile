@@ -17,4 +17,4 @@ driver.o: driver.c scanner.h parser.o
 	gcc -Wall -g -c -o driver.o driver.c
 
 clean:
-	rm -f compile scanner.o parser.o driver.o
+	rm -f compile scanner.o parser.o driver.o ast.o ast-print.o

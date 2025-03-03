@@ -1,7 +1,7 @@
 /*
  * Author: Edward Fattell
  * File: parser.c
- * Purpose: Parser for G0, and eventually C-- compiler
+ * Purpose: Parser for G2, and eventually C-- compiler
  */
 #include "parser.h"
 #include "ast.h"
@@ -14,12 +14,21 @@
 
 int curr_tok;
 
+// Symbol Table pointers
+symboltab *globl = NULL;
+symboltab *local = NULL;
+
+Quad *ast_root = NULL;
+enum scope { GLOBAL, LOCAL, EITHER } typedef scopetype;
+scopetype curscope = GLOBAL;
+symboltab *getentry(char *id, scopetype scope);
+Quad *new_quad(NodeType t);
 void match(Token expected);
 
-// Grammar Rules
+// Grammar Rule Procedures
 void prog();
 void var_decl();
-void decl_or_func(Quad **subtree); // TODO: Where is ID list handled
+void decl_or_func();
 void type();
 int opt_formals(Quad **subtree);
 int formals(Quad **subtree);
@@ -37,27 +46,15 @@ void bool_exp(Quad **subtree);
 void arith_exp(Quad **subtree);
 NodeType relop();
 
-enum scope { GLOBAL, LOCAL, EITHER } typedef scopetype;
-
-scopetype curscope = GLOBAL;
-
 // Helper procedures
 void check_var(char *lexeme);
 int check_arg_count(char *lexemeLoc);
 void linepexit(Token t, char *lexeme, char *str);
-
-symboltab *getentry(char *id, scopetype scope);
-
-Quad *new_quad(NodeType t);
-
+void freeQuad(Quad *quad);
 void freeSymTab(symboltab *tabin);
 void freeTabs(void);
 
-symboltab *globl = NULL;
-symboltab *local = NULL;
-
-Quad *ast_root = NULL;
-
+// Token Name array for printing error messages
 char *token_name[] = {
     "UNDEF",  "ID",    "INTCON", "LPAREN", "RPAREN", "LBRACE",  "RBRACE",
     "COMMA",  "SEMI",  "kwINT",  "kwIF",   "kwELSE", "kwWHILE", "kwRETURN",
@@ -66,11 +63,6 @@ char *token_name[] = {
 };
 
 symboltab *createEntry(char *lexeme) {
-  /*
-  if (!strcmp(lexeme, "teehee1")) {
-    printf("creating a teehee1 entry in scope %d\n", curscope);
-  }
-  */
   // check if in table first
   symboltab **curtab = NULL;
   if (curscope == GLOBAL) {
@@ -93,11 +85,6 @@ symboltab *createEntry(char *lexeme) {
 }
 
 symboltab *createFuncEntry(char *lexeme, int argcnt) {
-  /*
-  if (!strcmp(lexeme, "teehee1")) {
-    printf("creating a func teehee1 entry in scope %d\n", curscope);
-  }
-  */
   // check if in table first
   symboltab **curtab = &local;
   if (curscope == GLOBAL) {
@@ -136,24 +123,11 @@ void match(Token expected) {
 }
 
 void prog() {
-  Quad *newASThead = new_quad(STMT_LIST);
-
-  Quad *cur_quad = newASThead;
-
   // iterate to simulate recursion
   while (curr_tok == kwINT) {
     match(kwINT);
-
-    decl_or_func(&cur_quad->child0);
-
-    if (cur_quad->child0) {
-      cur_quad->child1 = new_quad(STMT_LIST);
-      cur_quad = cur_quad->child1;
-    }
+    decl_or_func();
   }
-
-  ast_root = newASThead;
-  // print_ast(ast_root);
 
   if (curr_tok == EOF) {
     // Epsilon
@@ -164,9 +138,7 @@ void prog() {
 
 void id_list_rest() {
   while (curr_tok == COMMA) {
-    // printf("at id list comma\n");
     match(COMMA);
-    // printf("at id list ID\n");
     if (curr_tok == ID) {
       createEntry(lexeme);
     }
@@ -176,14 +148,11 @@ void id_list_rest() {
 
 void id_list() {
   if (curr_tok == ID) {
-    // printf("create entry at id_list\n");
     createEntry(lexeme);
   }
   match(ID);
   if (curr_tok != COMMA)
     return;
-  // match(COMMA);
-  // printf("Before id list rest\n");
   id_list_rest();
 }
 
@@ -237,11 +206,14 @@ int formals(Quad **subtree) {
  * child0 = expr_lit of formals
  * child1 = body Quad
  */
-void decl_or_func(Quad **subtree) {
+void decl_or_func() {
+  Quad *subtreeHd = NULL;
+  Quad **subtree = &subtreeHd;
+
   char funcName[1024];
   strcpy(funcName, lexeme);
   match(ID);
-  // printf("decl or func after ID tok: %d\n", curr_tok);
+
   if (curr_tok == SEMI) {
     createEntry(funcName);
     match(SEMI);
@@ -256,7 +228,6 @@ void decl_or_func(Quad **subtree) {
 
   } else {
     // must be func, match the rest
-    assert(*subtree == NULL);
 
     Quad *newSubtree = new_quad(EXPR_LIST);
     *subtree = newSubtree;
@@ -276,14 +247,13 @@ void decl_or_func(Quad **subtree) {
     newSubtree->type = FUNC_DEF;
 
     opt_var_decls();
-    // printf("after var decls\n");
     opt_stmt_list(&newSubtree->child1);
-    // printf("curr_tok after stmt list %s\n", token_name[curr_tok]);
     match(RBRACE);
 
     if (print_ast_flag)
       print_ast(*subtree);
 
+    freeQuad(*subtree);
     freeSymTab(local);
     local = NULL;
     curscope = GLOBAL;
@@ -329,7 +299,6 @@ void opt_stmt_list(Quad **subtree) {
   // iterate while the curr_tok is in the first set of stmt
   while (curr_tok == ID || curr_tok == kwWHILE || curr_tok == kwIF ||
          curr_tok == kwRETURN || curr_tok == LBRACE || curr_tok == SEMI) {
-    // printf("Calling stmt\n");
     stmt(&curSubtree->child0);
 
     if (curSubtree->child0) {
@@ -337,17 +306,14 @@ void opt_stmt_list(Quad **subtree) {
       curSubtree = curSubtree->child1;
     }
   }
-  // printf("after stmt list\n");
 }
 
 void stmt(Quad **subtree) {
   assert(*subtree == NULL);
 
-  // printf("In sgtmt lexeme: %s\n", lexeme);
   char id[1024];
   switch (curr_tok) {
   case (ID):
-    // printf("In fn call or assg\n");
     if (curr_tok == ID && strlen(lexeme)) {
       strcpy(id, lexeme);
     }
@@ -375,27 +341,20 @@ void stmt(Quad **subtree) {
     match(SEMI);
     break;
   case (kwWHILE):
-    // printf("In while block\n");
     while_stmt(subtree);
     break;
   case (kwIF):
-    // printf("In if block\n");
     if_stmt(subtree);
     break;
   case (kwRETURN):
-    // printf("In return\n");
     return_stmt(subtree);
     break;
   case (LBRACE):
     match(LBRACE);
-    // printf("In lbrace \n");
     opt_stmt_list(subtree);
-    // printf("Tok after stmt list: %s token: %s\n", lexeme,
-    // token_name[curr_tok]);
     match(RBRACE);
     break;
   case (SEMI):
-    // printf("In semi\n");
     match(SEMI);
     break;
   default:
@@ -438,7 +397,6 @@ void while_stmt(Quad **subtree) {
   match(RPAREN);
 
   stmt(&newSubtree->child1);
-  // printf("Exited while stmt\n");
 }
 
 void return_stmt(Quad **subtree) {
@@ -458,7 +416,6 @@ void return_stmt(Quad **subtree) {
   }
 }
 
-// TODO: Look over
 void assg_stmt(Quad **subtree) {
   assert(*subtree == NULL);
 
@@ -483,11 +440,8 @@ void fn_call(Quad **subtree, char *id) {
 
   newSubtree->tableentry = getentry(id, GLOBAL);
 
-  // printf("\n\n\n ------------IN FUCNTION CALL lexeme %s------------\n\n\n\n",
-  // lexeme);
   match(LPAREN);
   int expected_argcnt = check_arg_count(id);
-  // printf("Function Call to %s expects %d args\n", id, expected_argcnt);
   int exprcnt = opt_expr_list(&newSubtree->child0, expected_argcnt);
   match(RPAREN);
 
@@ -537,7 +491,6 @@ int expr_list(Quad **subtree, int expected_argcnt) {
   curSubtree = newSubtree;
 
   print_ast(newSubtree);
-  // printf("In expr list\n");
   int exprcnt = 0;
 
   arith_exp(&curSubtree->child0);
@@ -648,11 +601,6 @@ void type() {
 }
 
 symboltab *getentry(char *id, scopetype scope) {
-  /*
-  if (!strcmp(id, "teehee1")) {
-    printf("getting teehee1 in scope %d, line %d\n", scope, linecnt);
-  }
-  */
   for (int i = 0; i < 2; i++) {
     symboltab *iscope = local;
 
@@ -660,7 +608,6 @@ symboltab *getentry(char *id, scopetype scope) {
       iscope = globl;
 
     for (symboltab *jtab = iscope; jtab != NULL; jtab = jtab->next) {
-      // printf("at itab | %s\n", itab->name);
       if (!strcmp(id, jtab->name)) {
         return jtab;
       }
@@ -722,6 +669,16 @@ Quad *new_quad(NodeType t) {
   new_quad->child2 = NULL;
 
   return new_quad;
+}
+
+void freeQuad(Quad *quad) {
+  if (quad->child0)
+    freeQuad(quad->child0);
+  if (quad->child1)
+    freeQuad(quad->child1);
+  if (quad->child2)
+    freeQuad(quad->child2);
+  free(quad);
 }
 
 void freeSymTab(symboltab *tabin) {
