@@ -536,11 +536,6 @@ int expr_list(Quad **subtree, int expected_argcnt) {
 
   arith_exp(&curSubtree->child0);
 
-  printf("New list %d\n\n\n\n", curSubtree->child0->type);
-  print_ast(newSubtree);
-
-  printf("\n\n\n\n");
-
   exprcnt++;
 
   if (chk_decl_flag && exprcnt > expected_argcnt) {
@@ -560,11 +555,6 @@ int expr_list(Quad **subtree, int expected_argcnt) {
 
     arith_exp(&curSubtree->child0);
 
-    printf("New expr in list %d\n\n\n\n", curSubtree->child0->type);
-    print_ast(newSubtree);
-
-    printf("\n\n\n\n");
-
     if (chk_decl_flag && exprcnt > expected_argcnt) {
       char msg[1024];
       sprintf(msg,
@@ -574,9 +564,6 @@ int expr_list(Quad **subtree, int expected_argcnt) {
     }
   }
 
-  printf(
-      "\n\n\n\n ----------------PRINTING EXPR_LIST-------------------------\n");
-  print_ast(newSubtree);
   return exprcnt;
 }
 

@@ -85,7 +85,7 @@ char *func_call_callee(void *ptr) {
 void *func_call_args(void *ptr) {
   Quad *ast = ptr;
   assert(ast != NULL);
-  return ast->child1;
+  return ast->child0;
 }
 
 /*
@@ -127,7 +127,7 @@ void *expr_list_head(void *ptr) {
 void *expr_list_rest(void *ptr) {
   Quad *ast = ptr;
   assert(ast != NULL);
-  return ast->child0;
+  return ast->child1;
 }
 
 /*
